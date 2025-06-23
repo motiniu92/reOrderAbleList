@@ -42,7 +42,7 @@ class _ReorderListPageState extends State<ReorderListPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey.shade100,
+      backgroundColor: Colors.grey.shade200,
       appBar: AppBar(
         backgroundColor: Colors.blueGrey.shade100,
         title: Text("Reorder Able List"),
@@ -57,29 +57,35 @@ class _ReorderListPageState extends State<ReorderListPage> {
             items.insert(newIndex, item);
           });
         },
-        itemBuilder: (context, index) {
-          return Container(
-            key: ValueKey(items[index]),
-            color: Colors.white, // Set your desired item background color
-            child: ListTile(
-              title: Padding(
-                padding: const EdgeInsets.only(left: 20),
-                child: Text(
-                  items[index],
-                  style: TextStyle(color: Colors.black, fontSize: 18),
+          itemBuilder: (context, index) {
+            return Container(
+              key: ValueKey(items[index]),
+              margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: index.isOdd ? Colors.cyan.shade50 : Colors.white,
+                borderRadius: BorderRadius.circular(12), //  Corner radius
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12), //  Match radius for clipping children
+                child: ListTile(
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  title: Padding(
+                    padding: const EdgeInsets.only(left: 30),
+                    child: Text(
+                      items[index],
+                      style: TextStyle(color: Colors.black, fontSize: 18),
+                    ),
+                  ),
+                  leading: Icon(
+                    Icons.drag_handle,
+                    size: 32,
+                    color: Colors.black,
+                  ),
                 ),
               ),
-              leading: Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: Icon(
-                  Icons.drag_handle,
-                  size: 32,
-                  color: Colors.black,
-                ),
-              ),
-            ),
-          );
-        },
+            );
+          }
+
       ),
     );
   }
