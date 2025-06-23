@@ -34,6 +34,8 @@ class _ReorderListPageState extends State<ReorderListPage> {
     "Python",
     "PHP",
     "React",
+    "Angular",
+    "My Sql",
     "Javascript"
   ];
 
