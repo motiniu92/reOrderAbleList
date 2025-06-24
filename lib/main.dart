@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:reorderable_grid_view/reorderable_grid_view.dart';
 
 void main() {
   runApp(MyApp());
@@ -39,54 +40,117 @@ class _ReorderListPageState extends State<ReorderListPage> {
     "Javascript"
   ];
 
+  bool isGridView = false; // toggle state
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey.shade200,
       appBar: AppBar(
         backgroundColor: Colors.blueGrey.shade100,
-        title: Text("Reorder Able List"),
+        title: Text(
+          isGridView ? "Reorder Able GridView" : "Reorder Able ListView",
+          style: TextStyle(color: Colors.black),
+        ),
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: Icon(isGridView ? Icons.grid_view : Icons.list),
+            tooltip: 'Toggle View',
+            onPressed: () {
+              setState(() {
+                isGridView = !isGridView;
+              });
+            },
+          )
+        ],
       ),
-      body: ReorderableListView.builder(
-        itemCount: items.length,
-        onReorder: (oldIndex, newIndex) {
-          setState(() {
-            if (newIndex > oldIndex) newIndex -= 1;
-            final item = items.removeAt(oldIndex);
-            items.insert(newIndex, item);
-          });
-        },
-          itemBuilder: (context, index) {
-            return Container(
-              key: ValueKey(items[index]),
-              margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: index.isOdd ? Colors.cyan.shade50 : Colors.white,
-                borderRadius: BorderRadius.circular(12), //  Corner radius
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(12), //  Match radius for clipping children
-                child: ListTile(
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  title: Padding(
-                    padding: const EdgeInsets.only(left: 30),
-                    child: Text(
-                      items[index],
-                      style: TextStyle(color: Colors.black, fontSize: 18),
-                    ),
-                  ),
-                  leading: Icon(
-                    Icons.drag_handle,
-                    size: 32,
-                    color: Colors.black,
-                  ),
-                ),
-              ),
-            );
-          }
+      body: isGridView
+          ? _buildReOrderAbleGridView()
+          : _buildReOrderAbleListView(),
+    );
+  }
 
-      ),
+  // List View
+  Widget _buildReOrderAbleListView() {
+    return ReorderableListView.builder(
+      itemCount: items.length,
+      onReorder: (oldIndex, newIndex) {
+        setState(() {
+          if (newIndex > oldIndex) newIndex -= 1;
+          final item = items.removeAt(oldIndex);
+          items.insert(newIndex, item);
+        });
+      },
+      itemBuilder: (context, index) {
+        return Container(
+          key: ValueKey(items[index]),
+          margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 8),
+          decoration: BoxDecoration(
+            color: index.isOdd ? Colors.cyan.shade50 : Colors.white,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: ListTile(
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              title: Text(
+                items[index],
+                textAlign: TextAlign.center,
+                style: const TextStyle(color: Colors.black, fontSize: 18),
+              ),
+              leading: const Icon(
+                Icons.drag_handle,
+                size: 32,
+                color: Colors.black,
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  // Grid View
+  Widget _buildReOrderAbleGridView() {
+    return ReorderableGridView.count(
+      crossAxisCount: 2,
+      mainAxisSpacing: 8,
+      crossAxisSpacing: 8,
+      padding: const EdgeInsets.all(12),
+      children: List.generate(items.length, (index) {
+        return Card(
+          key: ValueKey(items[index]),
+          color: index.isEven ? Colors.green.shade100 : Colors.purple.shade100,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.grid_view_sharp,
+                    size: 32, color: Colors.black87),
+                const SizedBox(height: 12),
+                Text(
+                  items[index],
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                      fontSize: 16, fontWeight: FontWeight.w500),
+                ),
+              ],
+            ),
+          ),
+        );
+      }),
+      onReorder: (oldIndex, newIndex) {
+        setState(() {
+          final item = items.removeAt(oldIndex);
+          items.insert(newIndex, item);
+        });
+      },
     );
   }
 }
