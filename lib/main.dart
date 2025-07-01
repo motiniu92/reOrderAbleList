@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:reorderable_grid_view/reorderable_grid_view.dart';
+import 'package:reorderable_list/googleMapLiveLocation/direction_map_screen.dart';
 
 void main() {
   runApp(MyApp());
@@ -48,9 +49,19 @@ class _ReorderListPageState extends State<ReorderListPage> {
       backgroundColor: Colors.grey.shade200,
       appBar: AppBar(
         backgroundColor: Colors.blueGrey.shade100,
-        title: Text(
-          isGridView ? "Reorder Able GridView" : "Reorder Able ListView",
-          style: TextStyle(color: Colors.black),
+        title: GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>  DirectionMapScreen(),
+              ),
+            );
+          },
+          child: Text(
+            isGridView ? "Reorder Able GridView" : "Reorder Able ListView",
+            style: TextStyle(color: Colors.black),
+          ),
         ),
         centerTitle: true,
         actions: [
