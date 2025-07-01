@@ -37,14 +37,14 @@ dependencies:
   reorderable_grid_view: ^2.2.8
   google_maps_flutter: ^2.5.3
   google_maps_flutter_platform_interface: ^2.4.0
-  http: ^0.13.6
+  http: ^1.4.0
   geocoding: ^2.1.0
   screenshot: ^3.0.0
   path_provider: ^2.1.2
   geolocator: ^11.0.0
   permission_handler: ^11.3.0
   maps_launcher: ^3.0.0+1
-
+  flutter_polyline_points: ^2.1.0
 
 dev_dependencies:
   flutter_test:

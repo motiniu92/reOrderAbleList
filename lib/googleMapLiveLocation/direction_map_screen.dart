@@ -9,202 +9,107 @@ import 'package:geocoding/geocoding.dart';
 import 'package:maps_launcher/maps_launcher.dart';
 import 'package:screenshot/screenshot.dart';
 
-
 class DirectionMapScreen extends StatefulWidget {
   @override
   _DirectionMapScreenState createState() => _DirectionMapScreenState();
 }
 
 class _DirectionMapScreenState extends State<DirectionMapScreen> {
-//   Position? _currentPosition;
-//
-//   @override
-//   void initState() {
-//     super.initState();
-//     _getCurrentLocation();
-//   }
-//
-//   _getCurrentLocation() {
-//     Geolocator.getCurrentPosition(
-//       desiredAccuracy: LocationAccuracy.best,
-//       forceAndroidLocationManager: true,
-//     ).then((Position position) {
-//       setState(() {
-//         print("_currentPosition: $position");
-//         _currentPosition = position;
-//         MapsLauncher.launchQuery(
-//             '${position.latitude}, ${position.longitude}');
-//       });
-//     }).catchError((e) {
-//       print("Error getting location: $e");
-//     });
-//   }
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: Text("Location"),
-//       ),
-//       body: Center(
-//         child:  Column(
-//           mainAxisAlignment: MainAxisAlignment.center,
-//           children: [
-//             Text(
-//               "LAT: ${_currentPosition!.latitude}, LNG: ${_currentPosition!.longitude}",
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
-
-
-  GoogleMapController? _mapController;
+  late GoogleMapController mapController;
   ScreenshotController screenshotController = ScreenshotController();
+  Uint8List? _imageFile; // Make it nullable
+  String? _base64Image;
 
-  LatLng? startLatLng;
-  LatLng? endLatLng;
-  Set<Polyline> _polylines = {};
-  String? etaText;
+  final LatLng _startPoint = LatLng(23.7323, 90.4145); // Paltan Bus Stop
+  final LatLng _endPoint = LatLng(23.7285, 90.4106); // Shapla Chattar
 
-  final String startAddress = "motijheel, dhaka";
-  final String endAddress = "middle badda, dhaka";
+  final Set<Polyline> _polylines = {};
+  final Set<Marker> _markers = {};
 
   @override
   void initState() {
     super.initState();
-    _loadRouteAndETA();
+    _setPolyline();
   }
 
-  Future<void> _loadRouteAndETA() async {
-    List<Location> startLocations = await locationFromAddress(startAddress);
-    List<Location> endLocations = await locationFromAddress(endAddress);
-
-    startLatLng = LatLng(startLocations.first.latitude, startLocations.first.longitude);
-    endLatLng = LatLng(endLocations.first.latitude, endLocations.first.longitude);
-
-    await _getDirectionPolylineAndETA();
+  void _onMapCreated(GoogleMapController controller) {
+    mapController = controller;
   }
 
-  Future<void> _getDirectionPolylineAndETA() async {
-    final String apiKey = 'AIzaSyC3NpcTc3Wdtn68VCsf7ZxswuDzlNvvt9c'; // Replace with your API Key
+  void _setPolyline() async {
+    // Add markers
+    _markers.add(Marker(
+      markerId: MarkerId('start'),
+      position: _startPoint,
+      infoWindow: InfoWindow(title: 'Paltan Bus Stop'),
+    ));
 
-    final url =
-        'https://maps.googleapis.com/maps/api/directions/json?origin=${startLatLng!.latitude},${startLatLng!.longitude}&destination=${endLatLng!.latitude},${endLatLng!.longitude}&mode=transit&transit_mode=bus&key=$apiKey';
+    _markers.add(Marker(
+      markerId: MarkerId('end'),
+      position: _endPoint,
+      infoWindow: InfoWindow(title: 'Shapla Chattar'),
+    ));
 
-    final response = await http.get(Uri.parse(url));
-    final data = jsonDecode(response.body);
+    // Create polyline (straight line for now)
+    _polylines.add(Polyline(
+      polylineId: PolylineId('route'),
+      points: [_startPoint, _endPoint],
+      color: Colors.blue,
+      width: 5,
+    ));
 
-    if (data['routes'].isNotEmpty) {
-      final route = data['routes'][0];
-      final points = route['overview_polyline']['points'];
-      final legs = route['legs'][0];
-
-      setState(() {
-        etaText = legs['duration']['text']; // e.g., "36 mins"
-        _polylines.add(
-          Polyline(
-            polylineId: PolylineId("bus_route"),
-            points: _decodePolyline(points),
-            color: Colors.green,
-            width: 6,
-          ),
-        );
-      });
-    } else {
-      setState(() {
-        etaText = "No route found.";
-      });
-    }
+    setState(() {});
   }
 
-  List<LatLng> _decodePolyline(String encoded) {
-    List<LatLng> polyline = [];
-    int index = 0, len = encoded.length;
-    int lat = 0, lng = 0;
-
-    while (index < len) {
-      int b, shift = 0, result = 0;
-
-      do {
-        b = encoded.codeUnitAt(index++) - 63;
-        result |= (b & 0x1f) << shift;
-        shift += 5;
-      } while (b >= 0x20);
-      int dlat = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
-      lat += dlat;
-
-      shift = 0;
-      result = 0;
-      do {
-        b = encoded.codeUnitAt(index++) - 63;
-        result |= (b & 0x1f) << shift;
-        shift += 5;
-      } while (b >= 0x20);
-      int dlng = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
-      lng += dlng;
-
-      polyline.add(LatLng(lat / 1E5, lng / 1E5));
-    }
-
-    return polyline;
-  }
-
-  Future<void> _captureScreenshotAsBase64() async {
-    final image = await screenshotController.capture();
+  void _captureScreenshot() async {
+    final image = await mapController.takeSnapshot();
     if (image != null) {
-      String base64Image = base64Encode(image);
-      print("Base64 Image:\n$base64Image");
-      // You can now use or upload this Base64 string
+      setState(() {
+        _imageFile = image;
+        _base64Image = base64Encode(image);
+      });
+
+      print("Screenshot captured...: ${_base64Image})");
+
+      // Optional: calculate distance
+      double distanceInMeters = Geolocator.distanceBetween(
+        _startPoint.latitude,
+        _startPoint.longitude,
+        _endPoint.latitude,
+        _endPoint.longitude,
+      );
+
+      print(
+          "Distance from startPoint to endPoint...: ${(distanceInMeters / 1000).toStringAsFixed(2)} km");
+    } else {
+      print("Failed to capture screenshot.");
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Bus Route: Motijheel → Badda"),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.camera_alt),
-            onPressed: _captureScreenshotAsBase64,
-          )
-        ],
-      ),
-      body: Screenshot(
-        controller: screenshotController,
-        child: Column(
-          children: [
-            if (etaText != null)
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(12),
-                color: Colors.black38,
-                child: Text(
-                  "Estimated Time (Bus): $etaText",
-                  style: TextStyle(color: Colors.white, fontSize: 16),
-                ),
+      appBar: AppBar(title: Text('Google Map Screenshot')),
+      body: Column(
+        children: [
+          Expanded(
+            child: GoogleMap(
+              onMapCreated: (controller) {
+                _onMapCreated(controller);
+                Future.delayed(Duration(seconds: 2),
+                    _captureScreenshot); // wait to render fully
+              },
+              initialCameraPosition: CameraPosition(
+                target: _startPoint,
+                zoom: 15.0,
               ),
-
-            Expanded(
-              child: (startLatLng == null || endLatLng == null)
-                  ? Center(child: CircularProgressIndicator())
-                  : GoogleMap(
-                initialCameraPosition: CameraPosition(target: startLatLng!, zoom: 15),
-                onMapCreated: (controller) => _mapController = controller,
-                markers: {
-                  Marker(markerId: MarkerId("start"), position: startLatLng!),
-                  Marker(markerId: MarkerId("end"), position: endLatLng!),
-                },
-                polylines: _polylines,
-              ),
+              polylines: _polylines,
+              markers: _markers,
             ),
-          ],
-        ),
+          ),
+          if (_imageFile != null) Image.memory(_imageFile!),
+        ],
       ),
     );
   }
-
 }
