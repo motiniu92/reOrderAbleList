@@ -13,14 +13,14 @@
 13         to allow setting breakpoints, to provide hot reload, etc.
 14    -->
 15    <uses-permission android:name="android.permission.INTERNET" />
-15-->/Users/krazyit/Documents/Others Projects/reOrderAbleList/android/app/src/main/AndroidManifest.xml:5:5-67
-15-->/Users/krazyit/Documents/Others Projects/reOrderAbleList/android/app/src/main/AndroidManifest.xml:5:22-64
+15-->/Users/krazyit/Documents/Others Projects/reOrderAbleList/android/app/src/main/AndroidManifest.xml:3:5-67
+15-->/Users/krazyit/Documents/Others Projects/reOrderAbleList/android/app/src/main/AndroidManifest.xml:3:22-64
 16    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-16-->/Users/krazyit/Documents/Others Projects/reOrderAbleList/android/app/src/main/AndroidManifest.xml:3:5-79
-16-->/Users/krazyit/Documents/Others Projects/reOrderAbleList/android/app/src/main/AndroidManifest.xml:3:22-76
+16-->/Users/krazyit/Documents/Others Projects/reOrderAbleList/android/app/src/main/AndroidManifest.xml:4:5-79
+16-->/Users/krazyit/Documents/Others Projects/reOrderAbleList/android/app/src/main/AndroidManifest.xml:4:22-76
 17    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-17-->/Users/krazyit/Documents/Others Projects/reOrderAbleList/android/app/src/main/AndroidManifest.xml:4:5-81
-17-->/Users/krazyit/Documents/Others Projects/reOrderAbleList/android/app/src/main/AndroidManifest.xml:4:22-78
+17-->/Users/krazyit/Documents/Others Projects/reOrderAbleList/android/app/src/main/AndroidManifest.xml:5:5-81
+17-->/Users/krazyit/Documents/Others Projects/reOrderAbleList/android/app/src/main/AndroidManifest.xml:5:22-78
 18    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
 18-->/Users/krazyit/Documents/Others Projects/reOrderAbleList/android/app/src/main/AndroidManifest.xml:6:5-75
 18-->/Users/krazyit/Documents/Others Projects/reOrderAbleList/android/app/src/main/AndroidManifest.xml:6:22-73
