@@ -46,6 +46,7 @@ dependencies:
   maps_launcher: ^3.0.0+1
   flutter_polyline_points: ^2.1.0
   mime: ^1.0.4
+  syncfusion_flutter_datagrid: ^24.2.6
 
 dev_dependencies:
   flutter_test:
